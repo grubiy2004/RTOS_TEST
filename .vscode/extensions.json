@@ -1,8 +1,9 @@
 {
   "recommendations": [
-    "ms-vscode.cpptools-extension-pack",
-    "marus25.cortex-debug",
-    "zixuanwang.linkerscript",
-    "dan-c-underwood.arm"
+    "ms-vscode.cpptools-extension-pack",      // C/C++ Extension Pack
+    "marus25.cortex-debug",                   // Cortex-Debug
+    "zixuanwang.linkerscript",                // LinkerScript
+    "dan-c-underwood.arm",                    // Arm Assembly
+    "github.vscode-github-actions"            // GitHub Actions
   ]
 }
