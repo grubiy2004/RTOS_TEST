@@ -3,6 +3,10 @@
 
 #include <stdint.h>
 
+// sdjvjdsfkjdsfdskjfdsalkjfksajdfnkdsajnkdsajnds,vnds,vnds,fvj
+//sdfdsfdsdsaf/asdf
+//adfsadgsdgdsdfsfds
+
 void delay(uint32_t time);
 void USART1_TX (uint8_t* dt);
 void I2C_Reset(void);
