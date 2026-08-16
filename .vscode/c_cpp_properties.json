@@ -1,0 +1,61 @@
+{
+    "env": {
+        "commonIncludePath": [
+            "${workspaceFolder}/lib/CMSIS/Device/ST/STM32F1xx/Include",
+            "${workspaceFolder}/lib/CMSIS/Include",
+            "${workspaceFolder}/lib/cmsis-config",
+            "${workspaceFolder}/lib/EventRecorder/include",
+            "${workspaceFolder}/lib/FreeRTOS/include",
+            "${workspaceFolder}/lib/FreeRTOS/portable",
+            "${workspaceFolder}/mcal/st-stm32f103/include",
+            "${workspaceFolder}/include",
+            "${workspaceFolder}/**"
+        ],
+        "commonDefines": [
+            "STM32F10X_MD"
+        ]
+    },
+    "configurations": [
+        {
+            "name": "stm32f103-gcc-windows",
+            "includePath": [
+                "${commonIncludePath}"
+            ],
+            "defines": [
+                "${commonDefines}"
+            ],
+            "compilerPath": "C:/Users/Kolya/Desktop/progs_engineer/SysGCC/bin/arm-none-eabi-g++.exe",
+            "cStandard": "c11",
+            "cppStandard": "c++14",
+            "intelliSenseMode": "gcc-arm"
+        },
+        {
+            "name": "stm32f103-gcc-macos",
+            "includePath": [
+                "${commonIncludePath}"
+            ],
+            "defines": [
+                "${commonDefines}"
+            ],
+            "compilerPath": "/opt/gcc/10-2020-q4/bin/arm-none-eabi-g++",
+            "cStandard": "c11",
+            "cppStandard": "c++14",
+            "intelliSenseMode": "gcc-arm"
+        },
+        {
+            "name": "stm32f103-gcc-linux",
+            "includePath": [
+                "${commonIncludePath}"
+            ],
+            "defines": [
+                "${commonDefines}"
+            ],
+            "compilerPath": "/opt/gcc/10-2020-q4/bin/arm-none-eabi-g++",
+            "cStandard": "c11",
+            "cppStandard": "c++14",
+            "intelliSenseMode": "gcc-arm"
+        }
+    ],
+    "version": 4,
+    "enableConfigurationSquiggles": true
+}

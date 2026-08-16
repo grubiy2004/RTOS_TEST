@@ -1,0 +1,124 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "type": "cmake",
+            "label": "Configure (Debug)",
+            "command": "configure",
+            "preset": "Debug",
+            "icon": {
+                "id": "gear",
+                "color": "terminal.ansiYellow"
+            },
+            "problemMatcher": [],
+            "detail": "Генерация файлов сборки для Debug",
+            "group": "build"
+        },
+        {
+            "type": "cmake",
+            "label": "Configure (Release)",
+            "command": "configure",
+            "preset": "Release",
+            "icon": {
+                "id": "gear",
+                "color": "terminal.ansiRed"
+            },
+            "problemMatcher": [],
+            "detail": "Генерация файлов сборки для Release",
+            "group": "build"
+        },
+        {
+            "type": "cmake",
+            "label": "Clear (Debug)",
+            "command": "clean",
+            "preset": "Debug",
+            "icon": {
+                "id": "trash",
+                "color": "terminal.ansiYellow"
+            },
+            "problemMatcher": [],
+            "detail": "Очистка Debug сборки",
+            "group": "build"
+        },
+        {
+            "type": "cmake",
+            "label": "Clear (Release)",
+            "command": "clean",
+            "preset": "Release",
+            "icon": {
+                "id": "trash",
+                "color": "terminal.ansiRed"
+            },
+            "problemMatcher": [],
+            "detail": "Очистка Release сборки",
+            "group": "build"
+        },
+        {
+            "type": "cmake",
+            "label": "Build (Debug)",
+            "command": "build",
+            "preset": "Debug",
+            "icon": {
+                "id": "fish2-happy",
+                "color": "terminal.ansiYellow"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "dependsOn": [
+                "Configure (Debug)"
+            ],
+            "detail": "Сборка Debug (с предварительной конфигурацией)",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "type": "cmake",
+            "label": "Build (Release)",
+            "command": "build",
+            "preset": "Release",
+            "icon": {
+                "id": "rocket",
+                "color": "terminal.ansiRed"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "dependsOn": [
+                "Configure (Release)"
+            ],
+            "detail": "Сборка Release (с предварительной конфигурацией)",
+            "group": "build"
+        },
+        {
+            "label": "Rebuild (Debug)",
+            "dependsOn": [
+                "Clear (Debug)",
+                "Build (Debug)"
+            ],
+            "dependsOrder": "sequence",
+            "problemMatcher": [],
+            "icon": {
+                "id": "sync",
+                "color": "terminal.ansiYellow"
+            },
+            "group": "build"
+        },
+        {
+            "label": "Rebuild (Release)",
+            "dependsOn": [
+                "Clear (Release)",
+                "Build (Release)"
+            ],
+            "dependsOrder": "sequence",
+            "problemMatcher": [],
+            "icon": {
+                "id": "sync",
+                "color": "terminal.ansiRed"
+            },
+            "group": "build"
+        }
+    ]
+}
