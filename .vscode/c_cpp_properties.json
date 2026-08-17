@@ -24,33 +24,7 @@
             "defines": [
                 "${commonDefines}"
             ],
-            "compilerPath": "C:/Users/Kolya/Desktop/progs_engineer/SysGCC/bin/arm-none-eabi-g++.exe",
-            "cStandard": "c11",
-            "cppStandard": "c++14",
-            "intelliSenseMode": "gcc-arm"
-        },
-        {
-            "name": "stm32f103-gcc-macos",
-            "includePath": [
-                "${commonIncludePath}"
-            ],
-            "defines": [
-                "${commonDefines}"
-            ],
-            "compilerPath": "/opt/gcc/10-2020-q4/bin/arm-none-eabi-g++",
-            "cStandard": "c11",
-            "cppStandard": "c++14",
-            "intelliSenseMode": "gcc-arm"
-        },
-        {
-            "name": "stm32f103-gcc-linux",
-            "includePath": [
-                "${commonIncludePath}"
-            ],
-            "defines": [
-                "${commonDefines}"
-            ],
-            "compilerPath": "/opt/gcc/10-2020-q4/bin/arm-none-eabi-g++",
+            "compilerPath": "arm-none-eabi-g++.exe",
             "cStandard": "c11",
             "cppStandard": "c++14",
             "intelliSenseMode": "gcc-arm"
