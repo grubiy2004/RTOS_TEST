@@ -16,7 +16,6 @@ set(CMAKE_CXX_STANDARD              14)
 set(CMAKE_CXX_STANDARD_REQUIRED     ON)
 set(CMAKE_CXX_EXTENSIONS            ON)
 
-set(DOXYGEN_EXECUTABLE  C:/Users/Kolya/Desktop/progs_engineer/doxygen-1.18.0.windows.x64.bin/doxygen.exe)
 set(TARGET_BIN_OUTPUT ${CMAKE_PROJECT_NAME}.bin)
 set(TARGET_HEX_OUTPUT ${CMAKE_PROJECT_NAME}.hex)
 
@@ -105,7 +104,7 @@ add_custom_command(TARGET ${CMAKE_PROJECT_NAME} POST_BUILD
 
 # Add custom target to generate doxygen documentation
 add_custom_target(doxygen
-    COMMAND ${DOXYGEN_EXECUTABLE} docs/doxygen/Doxyfile
+    COMMAND doxygen docs/doxygen/Doxyfile
     WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
     COMMENT "Generate doxygen documentation..."
 )
