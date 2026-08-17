@@ -9,16 +9,6 @@ set(CROSS_COMPILER_PREFIX           arm-none-eabi)
 
 # Specify the toolchain binary folder if it does not exist in PATH
 # Note: the path must be specified without trailing slash
-set(CROSS_COMPILER_BIN_PATH
-    "C:/Users/Kolya/Desktop/progs_engineer/SysGCC/bin"
-)
-
-if(EXISTS ${CROSS_COMPILER_BIN_PATH})
-    list(APPEND CMAKE_PREFIX_PATH
-        ${CROSS_COMPILER_BIN_PATH}
-    )
-    message(STATUS "Custom cross compiler path has been specified.")
-endif()
 
 find_program(CMAKE_C_COMPILER       ${CROSS_COMPILER_PREFIX}-gcc)
 find_program(CMAKE_CXX_COMPILER     ${CROSS_COMPILER_PREFIX}-g++)
