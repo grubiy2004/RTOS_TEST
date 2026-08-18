@@ -4,6 +4,7 @@
     "marus25.cortex-debug",                   // Cortex-Debug
     "zixuanwang.linkerscript",                // LinkerScript
     "dan-c-underwood.arm",                    // Arm Assembly
+    "editorconfig.editorconfig",              // EditorConfig
     "github.vscode-github-actions"            // GitHub Actions
   ]
 }
