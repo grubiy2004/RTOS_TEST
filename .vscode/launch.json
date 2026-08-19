@@ -1,50 +1,22 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Debug (J-Link, Windows)",
+            "name": "Debug (ST-Link, Windows)",
             "type": "cortex-debug",
             "request": "launch",
-            "armToolchainPath": "C:/gcc/10-2020-q4/bin",
+            "armToolchainPath": "C:/Distr/arm-gnu-toolchain-15.3.rel1-mingw-w64-x86_64-arm-none-eabi/bin",
             "cwd": "${workspaceFolder}",
-            "device": "STM32L496VG",
-            "executable": "${workspaceFolder}/build/Debug/stm32-project-template.elf",
+            "device": "STM32F103C8",
+            "executable": "${workspaceFolder}/build/Debug/rtos_test.elf",
             "interface": "swd",
             "runToEntryPoint": "main",
-            "serverpath": "C:/Program Files/SEGGER/JLink/JLinkGDBServerCL.exe",
-            "servertype": "jlink",
-            "svdFile": "${workspaceFolder}/mcal/st-stm32l4/svd/STM32L496.svd",
-        },
-        {
-            "name": "Debug (J-Link, macOS)",
-            "type": "cortex-debug",
-            "request": "launch",
-            "armToolchainPath": "/opt/gcc/10-2020-q4/bin",
-            "cwd": "${workspaceFolder}",
-            "device": "STM32L496VG",
-            "executable": "${workspaceFolder}/build/Debug/stm32-project-template.elf",
-            "interface": "swd",
-            "runToEntryPoint": "main",
-            "serverpath": "/Applications/SEGGER/JLink/JLinkGDBServerCLExe",
-            "servertype": "jlink",
-            "svdFile": "${workspaceFolder}/mcal/st-stm32l4/svd/STM32L496.svd",
-        },
-        {
-            "name": "Debug (J-Link, Linux)",
-            "type": "cortex-debug",
-            "request": "launch",
-            "armToolchainPath": "/opt/gcc/10-2020-q4/bin",
-            "cwd": "${workspaceFolder}",
-            "device": "STM32L496VG",
-            "executable": "${workspaceFolder}/build/Debug/stm32-project-template.elf",
-            "interface": "swd",
-            "runToEntryPoint": "main",
-            "serverpath": "/opt/SEGGER/JLink/JLinkGDBServerCLExe",
-            "servertype": "jlink",
-            "svdFile": "${workspaceFolder}/mcal/st-stm32l4/svd/STM32L496.svd",
+            "servertype": "openocd",
+            "configFiles": [
+                "interface/stlink.cfg",
+                "target/stm32f1x.cfg"
+            ],
+            "svdFile": "${workspaceFolder}/mcal/st-stm32f103/svd/STM32F103xx.svd"
         }
     ]
 }
