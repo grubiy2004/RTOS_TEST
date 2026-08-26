@@ -35,13 +35,13 @@ Install extensions which VS Code will recommend (by extensions.json).
 
 ### Build system commands
 
-| Command                                              | Description                                               |
-|:-----------------------------------------------------|:----------------------------------------------------------|
-| `cmake --list-presets`                               | List all CMake presets                                    |
-| `cmake --preset Debug`                               | Configure the project for Debug build                     |
-| `cmake --build --preset Debug`                       | Build the firmware with Debug build type                  |
-| `cmake --build --preset Debug --target clean`        | Clean the Debug target                                    |
-| `cmake --build --preset Debug --target doxygen`      | Generate documentation with Doxygen                       |
+Command                                               | Description
+-|-
+ `cmake --list-presets`                               | List all CMake presets
+ `cmake --preset Debug`                               | Configure the project for Debug build
+ `cmake --build --preset Debug`                       | Build the firmware with Debug build type
+ `cmake --build --preset Debug --target clean`        | Clean the Debug target
+ `cmake --build --preset Debug --target doxygen`      | Generate documentation with Doxygen
 
 Supported CMake configurations and build presets:
 
@@ -62,9 +62,6 @@ documentation output is generated with Doxygen.
 ## Repository structure
 
 ```text
-stm32-project-template
-├── .github
-│   └── workflows
 ├── .vscode
 ├── build
 ├── cmake
@@ -85,8 +82,6 @@ stm32-project-template
 │       ├── include
 │       ├── source
 │       └── svd
-├── project
-│   └── ozone
 └── source
 ```
 
@@ -118,6 +113,3 @@ interfaced by the application source code and they function as tiny wrappers
 around the low-level (HAL) drivers. This allows the application to interface
 these thin wrappers instead of the manufacturer-specific low-level code, thus
 providing easy portability across different chips and microcontrollers.
-
-The `project` folder contains SDK- and debugger-specific files organized into
-subfolders.
