@@ -7,7 +7,6 @@
             "request": "launch",
             "armToolchainPath": "C:/Distr/arm-gnu-toolchain-15.3.rel1-mingw-w64-x86_64-arm-none-eabi/bin",
             "cwd": "${workspaceFolder}",
-            //"device": "STM32F103C8",
             "executable": "${workspaceFolder}/build/Debug/rtos_test.elf",
             "interface": "swd",
             "runToEntryPoint": "main",
