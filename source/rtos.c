@@ -20,12 +20,15 @@ static void vLED_Task(void *pvParameters) {
         GPIOC->BRR = GPIO_BRR_BR13;
 
         // Задержка 500 мс (используем системный тик FreeRTOS)
-        vTaskDelay(pdMS_TO_TICKS(100));
+        //vTaskDelay(pdMS_TO_TICKS(100));
+        for(int i=0;i<10000000;i++) {
+            __ASM volatile("nop");
+        }
 
         // Выключить светодиод (высокий уровень на PC13)
         GPIOC->BSRR = GPIO_BSRR_BS13;
 
-        vTaskDelay(pdMS_TO_TICKS(100));
+        vTaskDelay(pdMS_TO_TICKS(1000));
     }
 }
 
