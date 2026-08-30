@@ -5,7 +5,7 @@
             "name": "Debug (ST-Link, Windows)",
             "type": "cortex-debug",
             "request": "launch",
-            "armToolchainPath": "C:/Distr/arm-gnu-toolchain-15.3.rel1-mingw-w64-x86_64-arm-none-eabi/bin",
+            "gdbPath": "arm-none-eabi-gdb",
             "cwd": "${workspaceFolder}",
             "executable": "${workspaceFolder}/build/Debug/rtos_test.elf",
             "interface": "swd",
