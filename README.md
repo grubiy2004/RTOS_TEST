@@ -10,8 +10,6 @@
   - [Build system](#build-system)
   - [Documentation](#documentation)
   - [Format check](#format-check)
-  - [Static code analysis \& linting](#static-code-analysis--linting)
-  - [Style check](#style-check)
   - [Continuous integration](#continuous-integration)
   - [Development container](#development-container)
   - [VSCode integration](#vscode-integration)
@@ -21,13 +19,13 @@
 
 ### Prerequisites
 
-- [CMake](https://cmake.org/download/) is installed and available on your PATH.
-- [Ninja](https://ninja-build.org) is installed and available on your PATH.
+- [CMake](https://cmake.org/download/) is installed and available on your **PATH**.
+- [Ninja](https://ninja-build.org) is installed and available on your **PATH**.
   Alternatively, you can use Make.
 - [GCC for ARM](https://developer.arm.com/downloads/-/gnu-rm) (GNU Arm Embedded
-  Toolchain) is installed and available in your PATH.
-- [Doxygen](https://www.doxygen.nl/download.html) is installed and available in your PATH.
-- [OpenOCD](https://gnutoolchains.com/arm-eabi/openocd/) is installed and available in your PATH.
+  Toolchain) is installed and available in your **PATH** (folder /bin).
+- [Doxygen](https://www.doxygen.nl/download.html) is installed and available in your **PATH**.
+- [OpenOCD](https://gnutoolchains.com/arm-eabi/openocd/) is installed and available in your **PATH**.
 
 ### Prerequisites in VS Code
 
