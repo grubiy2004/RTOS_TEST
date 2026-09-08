@@ -48,6 +48,7 @@ set(LINKER_FLAGS
     "-Wl,--gc-sections"
     "-Wl,--start-group -lc -lm -lnosys -Wl,--end-group"
     "-Wl,--print-memory-usage"
+    "-Wl,--no-warn-rwx-segments"
 )
 
 # Enable link time optimization for MinSizeRel builds

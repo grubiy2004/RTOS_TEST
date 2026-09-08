@@ -281,7 +281,7 @@ BaseType_t xPortStartScheduler( void )
      * is 1, should be preferred when possible. */
     #if ( configCHECK_HANDLER_INSTALLATION == 1 )
     {
-        const portISR_t * const pxVectorTable = portSCB_VTOR_REG;
+        const portISR_t * const pxVectorTable __attribute__((unused)) = portSCB_VTOR_REG;
 
         /* Validate that the application has correctly installed the FreeRTOS
          * handlers for SVCall and PendSV interrupts. We do not check the
@@ -766,7 +766,7 @@ __attribute__( ( weak ) ) void vPortSetupTimerInterrupt( void )
     void vPortValidateInterruptPriority( void )
     {
         uint32_t ulCurrentInterrupt;
-        uint8_t ucCurrentPriority;
+        uint8_t ucCurrentPriority __attribute__((unused));
 
         /* Obtain the number of the currently executing interrupt. */
         __asm volatile ( "mrs %0, ipsr" : "=r" ( ulCurrentInterrupt )::"memory" );
