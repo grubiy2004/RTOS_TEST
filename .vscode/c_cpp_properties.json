@@ -5,8 +5,6 @@
             "includePath": [
                 "${workspaceFolder}/lib/CMSIS/Device/ST/STM32F1xx/Include",
                 "${workspaceFolder}/lib/CMSIS/Include",
-                "${workspaceFolder}/lib/cmsis-config",
-                "${workspaceFolder}/lib/EventRecorder/include",
                 "${workspaceFolder}/lib/FreeRTOS/include",
                 "${workspaceFolder}/lib/FreeRTOS/portable",
                 "${workspaceFolder}/mcal/st-stm32f103/include",

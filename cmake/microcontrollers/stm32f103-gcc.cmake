@@ -1,6 +1,6 @@
 # Set linker script
 set(LINKER_SCRIPT
-    ${PROJECT_SOURCE_DIR}/mcal/st-stm32f103/gcc-arm/stm32f103c8.ld
+    ${PROJECT_SOURCE_DIR}/mcal/gcc-arm/stm32f103c8.ld
 )
 if(NOT EXISTS ${LINKER_SCRIPT})
     message(FATAL_ERROR "Linker script \"${LINKER_SCRIPT}\" does not exist!")

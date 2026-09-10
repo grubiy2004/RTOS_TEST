@@ -44,16 +44,16 @@ set(DEFINES
 
 # Set include paths
 set(INCLUDES
-    ${PROJECT_SOURCE_DIR}/mcal/st-stm32f103/include
+    ${PROJECT_SOURCE_DIR}/mcal/include
     ${PROJECT_SOURCE_DIR}/include
 )
 
 # Set source files
 set(SOURCES_ASM
-    ${PROJECT_SOURCE_DIR}/mcal/st-stm32f103/gcc-arm/startup_stm32f10x_md.s
+    ${PROJECT_SOURCE_DIR}/mcal/gcc-arm/startup_stm32f10x_md.s
 )
 set(SOURCES_C
-    ${PROJECT_SOURCE_DIR}/mcal/st-stm32f103/source/usart_tx.c
+    ${PROJECT_SOURCE_DIR}/mcal/source/usart_tx.c
     ${PROJECT_SOURCE_DIR}/source/at24c02.c
     ${PROJECT_SOURCE_DIR}/source/bmp180.c
     ${PROJECT_SOURCE_DIR}/source/rtos.c
