@@ -7,8 +7,11 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "stm32f10x.h"
+#include "usart_tx.h"
 
 #define BIT_BAND(address,offset,bit) *((volatile uint32_t *) (((address) & 0xF0000000) + 0x02000000 + (((address) & 0x000FFFFF) + offset)*32 + bit*4))
+
+uint8_t flag = 0;
 
 /**
  * @brief   Задача мигания светодиодом
@@ -36,6 +39,7 @@ static void vLED_Task(void *pvParameters) {
 
 void vApplicationIdleHook(void) {
     IWDG->KR = 0xAAAA;
+    WWDG->CR |= 0x7F;
     __WFI();
 }
 
@@ -45,6 +49,7 @@ void vApplicationIdleHook(void) {
 static void System_Init(void) {
     // Включаем тактирование порта C
     RCC->APB2ENR |= RCC_APB2ENR_IOPCEN;
+    RCC->APB1ENR |= RCC_APB1ENR_WWDGEN;
 
     // Настраиваем PC13 как выход (push-pull, 2 MHz)
     GPIOC->CRH &= ~(GPIO_CRH_CNF13 | GPIO_CRH_MODE13);
@@ -57,6 +62,15 @@ static void System_Init(void) {
     IWDG->PR = 2;
     IWDG->KR = 0xAAAA;
     IWDG->KR = 0xCCCC;
+
+    WWDG->CR |= WWDG_CR_WDGA;
+    WWDG->CFR |= WWDG_CFR_EWI;
+
+    NVIC_EnableIRQ(WWDG_IRQn);
+}
+
+void WWDG_IRQHandler(void) {
+    flag = 1;
 }
 
 /**
