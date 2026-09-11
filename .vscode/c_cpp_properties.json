@@ -7,12 +7,13 @@
                 "${workspaceFolder}/lib/CMSIS/Include",
                 "${workspaceFolder}/lib/FreeRTOS/include",
                 "${workspaceFolder}/lib/FreeRTOS/portable",
-                "${workspaceFolder}/mcal/st-stm32f103/include",
+                "${workspaceFolder}/mcal/include",
                 "${workspaceFolder}/include",
                 "${workspaceFolder}/**"
             ],
             "defines": [
-                "STM32F10X_MD"
+                "STM32F10X_MD",
+                "__ARM_ARCH_7M__"
             ],
             "compilerPath": "arm-none-eabi-g++.exe",
             "cStandard": "c11",
