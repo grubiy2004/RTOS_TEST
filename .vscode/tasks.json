@@ -119,6 +119,18 @@
                 "color": "terminal.ansiRed"
             },
             "group": "build"
+        },
+        {
+            "type": "cmake",
+            "label": "Doc",
+            "command": "build",
+            "preset": "Debug",
+            "targets": ["doxygen"],
+            "problemMatcher": [],
+            "icon": {
+                "id": "book",
+                "color": "terminal.ansiCyan"
+            },
         }
     ]
 }
