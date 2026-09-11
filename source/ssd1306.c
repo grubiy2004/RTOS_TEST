@@ -1,11 +1,16 @@
+/**
+ * @file ssd1306.c
+ * @author Me
+ * @brief Functions for work with LCD SSD1306 via I2C
+ */
+
 #include "ssd1306.h"
 #include "usart_tx.h"
 
-// Внутренний буфер кадра (1024 байта = 128 * 64 / 8)
 static uint8_t ssd1306_buffer[SSD1306_WIDTH * SSD1306_HEIGHT / 8];
 
 /** @brief Transmit command
- * @note static
+ * @param cmd Command (1 byte), see in @ref ssd1306.h
 */
 static void SSD1306_WriteCmd(uint8_t cmd) {
     I2C_Start();
@@ -16,7 +21,8 @@ static void SSD1306_WriteCmd(uint8_t cmd) {
 }
 
 /** @brief Transmit data
- * @note static
+ * @param data data buffer
+ * @param len length of buffer data
  */
 static void SSD1306_WriteData(uint8_t *data, uint16_t len) {
     I2C_Start();
