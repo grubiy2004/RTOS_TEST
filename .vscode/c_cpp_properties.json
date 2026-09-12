@@ -12,7 +12,8 @@
                 "${workspaceFolder}/**"
             ],
             "defines": [
-                "STM32F10X_MD"
+                "STM32F10X_MD",
+                "__ARM_ARCH_7M__"
             ],
             "compilerPath": "arm-none-eabi-g++.exe",
             "cStandard": "c11",

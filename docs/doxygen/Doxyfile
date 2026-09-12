@@ -866,8 +866,8 @@ WARN_LOGFILE           =
 
 INPUT                  = README.md \
                          CHANGELOG.md \
-                         mcal/st-stm32f103/include \
-                         mcal/st-stm32f103/source \
+                         mcal/include \
+                         mcal/source \
                          include \
                          source
 

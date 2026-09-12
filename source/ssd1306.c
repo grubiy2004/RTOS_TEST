@@ -1,12 +1,19 @@
+/**
+ * @file ssd1306.c
+ * @author Me
+ * @brief Functions for work with LCD SSD1306 via I2C
+ */
+
 #include "ssd1306.h"
 #include "usart.h"
 #include "i2c.h"
 #include "delay.h"
 
-// Внутренний буфер кадра (1024 байта = 128 * 64 / 8)
 static uint8_t ssd1306_buffer[SSD1306_WIDTH * SSD1306_HEIGHT / 8];
 
-// Статическая функция для отправки пакета "команда"
+/** @brief Transmit command
+ * @param cmd Command (1 byte), see in @ref ssd1306.h
+*/
 static void SSD1306_WriteCmd(uint8_t cmd) {
     I2C_Start();
     I2C_Select(SSD1306_ADDR, 0); // Запись
@@ -15,7 +22,10 @@ static void SSD1306_WriteCmd(uint8_t cmd) {
     I2C_Stop();
 }
 
-// Статическая функция для отправки пакета "данные"
+/** @brief Transmit data
+ * @param data data buffer
+ * @param len length of buffer data
+ */
 static void SSD1306_WriteData(uint8_t *data, uint16_t len) {
     I2C_Start();
     I2C_Select(SSD1306_ADDR, 0); // Запись
@@ -26,7 +36,7 @@ static void SSD1306_WriteData(uint8_t *data, uint16_t len) {
     I2C_Stop();
 }
 
-// Инициализация дисплея
+/** @brief Initialization of display */
 void SSD1306_Init(void) {
     // Ждем стабилизации питания (в твоем стиле, delay уже реализован)
     delay(10000);
@@ -86,8 +96,7 @@ void SSD1306_Init(void) {
 
 	I2C_Stop();
 }
-
-// Очистка буфера и экрана
+/** @brief Clear buffer and display */
 void SSD1306_Clear(void) {
     for(uint16_t i = 0; i < sizeof(ssd1306_buffer); i++) {
         ssd1306_buffer[i] = 0x00;
@@ -110,7 +119,9 @@ void SSD1306_Clear(void) {
     SSD1306_WriteData(ssd1306_buffer, sizeof(ssd1306_buffer));
 }
 
-// Полное обновление экрана из буфера
+/** @brief Full display updating from buffer
+ * @param buffer Array of pixels
+*/
 void SSD1306_UpdateFull(uint8_t *buffer) {
     // Копируем во внутренний буфер
     for(uint16_t i = 0; i < sizeof(ssd1306_buffer); i++) {
@@ -133,12 +144,12 @@ void SSD1306_UpdateFull(uint8_t *buffer) {
     SSD1306_WriteData(ssd1306_buffer, sizeof(ssd1306_buffer));
 }
 
-// Включение дисплея
+/** @brief Enable display */
 void SSD1306_DisplayOn(void) {
     SSD1306_WriteCmd(SSD1306_CMD_DISPLAY_ON);
 }
 
-// Выключение дисплея
+/** @brief Disable display */
 void SSD1306_DisplayOff(void) {
     SSD1306_WriteCmd(SSD1306_CMD_DISPLAY_OFF);
 }
