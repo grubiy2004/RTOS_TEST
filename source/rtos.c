@@ -7,11 +7,9 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "stm32f10x.h"
-#include "usart_tx.h"
+#include "usart.h"
 
 #define BIT_BAND(address,offset,bit) *((volatile uint32_t *) (((address) & 0xF0000000) + 0x02000000 + (((address) & 0x000FFFFF) + offset)*32 + bit*4))
-
-uint8_t flag = 0;
 
 /**
  * @brief   Задача мигания светодиодом
@@ -37,9 +35,17 @@ static void vLED_Task(void *pvParameters) {
     }
 }
 
+static void vUSART_Task(void *pvParameters) {
+    (void) pvParameters;
+    uint8_t buffer_receive[40];
+    for(;;){
+        USART_TX(buffer_receive, USART_UNIT_1);
+        vTaskDelay(pdMS_TO_TICKS(1000));
+    }
+}
+
 void vApplicationIdleHook(void) {
     IWDG->KR = 0xAAAA;
-    WWDG->CR |= 0x7F;
     __WFI();
 }
 
@@ -47,30 +53,34 @@ void vApplicationIdleHook(void) {
  * @brief   Инициализация тактирования и GPIO
  */
 static void System_Init(void) {
-    // Включаем тактирование порта C
-    RCC->APB2ENR |= RCC_APB2ENR_IOPCEN;
-    RCC->APB1ENR |= RCC_APB1ENR_WWDGEN;
+    RCC->APB2ENR |= RCC_APB2ENR_IOPAEN | RCC_APB2ENR_IOPBEN | RCC_APB2ENR_IOPCEN | RCC_APB2ENR_USART1EN;
+    RCC->APB2ENR |= RCC_APB2ENR_TIM1EN;
 
-    // Настраиваем PC13 как выход (push-pull, 2 MHz)
-    GPIOC->CRH &= ~(GPIO_CRH_CNF13 | GPIO_CRH_MODE13);
+    GPIOA->CRH &= ~(GPIO_CRH_CNF9 | GPIO_CRH_MODE9);
+    GPIOA->CRH |= GPIO_CRH_CNF10_1 | GPIO_CRH_MODE13_1; // AF-output, 2 MHz (альт. выход для USART1 TX)
+    GPIOA->CRH &= ~(GPIO_CRH_CNF10 | GPIO_CRH_MODE10);
+    GPIOA->CRH |= GPIO_CRH_CNF10_1; // input push-pull (вод для USART1 RX)
+
+    GPIOB->CRH &= ~(GPIO_CRH_CNF13 | GPIO_CRH_MODE13);
+    GPIOB->CRH |= GPIO_CRH_CNF10_1 | GPIO_CRH_MODE13_1;  // // AF-output, 2 MHz (альт. выход (TIM1-CC1))
+    GPIOB->BSRR = GPIO_BSRR_BR13;    // Изначально светодиод выключен
+
+    GPIOC->CRH &= ~(GPIO_CRH_CNF13 | GPIO_CRH_MODE13);// Настраиваем PC13 как выход (push-pull, 2 MHz)
     GPIOC->CRH |= GPIO_CRH_MODE13_0;  // MODE13 = 01 (2MHz, выход)
+    GPIOC->BSRR = GPIO_BSRR_BS13;    // Изначально светодиод выключен
 
-    // Изначально светодиод выключен
-    GPIOC->BSRR = GPIO_BSRR_BS13;
+    TIM1->CCMR1 &= ~TIM_CCMR1_OC1M;
+    TIM1->CCMR1 |= TIM_CCMR1_OC1M_1 | TIM_CCMR1_OC1M_2;
+    TIM1->CCR1 = 36;
+    TIM1->ARR = 72;
+    TIM1->PSC = 10000;
+    TIM1->CCER |= TIM_CCER_CC1E;
+    TIM1->CR1 |= TIM_CR1_CEN;
 
     IWDG->KR = 0x5555;
     IWDG->PR = 2;
     IWDG->KR = 0xAAAA;
     IWDG->KR = 0xCCCC;
-
-    WWDG->CR |= WWDG_CR_WDGA;
-    WWDG->CFR |= WWDG_CFR_EWI;
-
-    NVIC_EnableIRQ(WWDG_IRQn);
-}
-
-void WWDG_IRQHandler(void) {
-    flag = 1;
 }
 
 /**
@@ -79,7 +89,7 @@ void WWDG_IRQHandler(void) {
 int main(void) {
     // Инициализация железа
     System_Init();
-
+    USART_Init();
     // Создаём задачу мигания
     // Стек 128 слов (~512 байт) — достаточно для простой задачи
     xTaskCreate(
@@ -89,6 +99,15 @@ int main(void) {
         NULL,            // Параметр задачи
         1,               // Приоритет (1 — низкий)
         NULL             // Хэндл задачи (не нужен)
+    );
+
+    xTaskCreate(
+        vUSART_Task,
+        "USART1",
+        128,
+        NULL,
+        2,
+        NULL
     );
 
     // Запускаем планировщик FreeRTOS
