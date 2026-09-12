@@ -1,6 +1,7 @@
 #include "stm32f10x.h"
-#include "usart_tx.h"
+#include "usart.h"
 #include "at24c02.h"
+#include "i2c.h"
 
 // 2 Кбит. 32 страницы по 8 байт. Если записывается сверх одной страницы за раз, то байты перезаписываются по кругу (9-й вместо 1-го, 10-й вместо 2-го и т.д.)
 // Между циклами записи НУЖНО подождать минимум 5 мс, иначе EEPROM не ответит ACKом
@@ -23,9 +24,9 @@ void AT24_Write_Page(uint8_t word_address,uint8_t *buf) {	// Записать с
 	while(count--) {
 		I2C_Write(*buf++);
 	}
-	I2C_Stop();	
+	I2C_Stop();
 }
-	
+
 void AT24_Read_Current_Byte(uint8_t *data) {			// Прочитать байт, следующий после байта, к которому в последний раз было обращение (в прошлом цикле читался один байт по адресу 0x01, значит здесь будет читаться сразу байт 0x02)
 	I2C_Start();										// Не проверял
 	I2C_Select(ADDR_BM,1);
@@ -51,8 +52,8 @@ void AT24_Read_Sequent(uint8_t word_address,uint8_t *buf, uint8_t count){	// П�
 	I2C_Select(ADDR_BM,1);
 	while(count>1) {
 		I2C_Read(buf++,1);
-		count--; 
+		count--;
 	}
 	I2C_Read(buf,0);
-	I2C_Stop();	
+	I2C_Stop();
 }

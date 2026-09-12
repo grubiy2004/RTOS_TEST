@@ -7,7 +7,7 @@
                 "${workspaceFolder}/lib/CMSIS/Include",
                 "${workspaceFolder}/lib/FreeRTOS/include",
                 "${workspaceFolder}/lib/FreeRTOS/portable",
-                "${workspaceFolder}/mcal/st-stm32f103/include",
+                "${workspaceFolder}/mcal/include",
                 "${workspaceFolder}/include",
                 "${workspaceFolder}/**"
             ],

@@ -53,12 +53,13 @@ set(SOURCES_ASM
     ${PROJECT_SOURCE_DIR}/mcal/gcc-arm/startup_stm32f10x_md.s
 )
 set(SOURCES_C
-    ${PROJECT_SOURCE_DIR}/mcal/source/usart_tx.c
+    ${PROJECT_SOURCE_DIR}/mcal/source/usart.c
     ${PROJECT_SOURCE_DIR}/source/at24c02.c
     ${PROJECT_SOURCE_DIR}/source/bmp180.c
     ${PROJECT_SOURCE_DIR}/source/rtos.c
     ${PROJECT_SOURCE_DIR}/source/ssd1306.c
     ${PROJECT_SOURCE_DIR}/source/system_stm32f10x.c
+    ${PROJECT_SOURCE_DIR}/source/delay.c
 )
 
 # Specify target executable

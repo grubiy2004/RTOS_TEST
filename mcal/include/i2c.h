@@ -1,14 +1,8 @@
-#ifndef USART_H
-#define USART_H
+#ifndef I2C_H
+#define I2C_H
 
 #include <stdint.h>
 
-// sdjvjdsfkjdsfdskjfdsalkjfksajdfnkdsajnkdsajnds,vnds,vnds,fvj
-//sdfdsfdsdsaf/asdf
-//adfsadgsdgdsdfsfds
-
-void delay(uint32_t time);
-void USART1_TX (uint8_t* dt);
 void I2C_Reset(void);
 void I2C_Start(void);
 void I2C_Stop(void);
