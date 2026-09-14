@@ -9,11 +9,14 @@
                 "${workspaceFolder}/lib/FreeRTOS/portable",
                 "${workspaceFolder}/mcal/include",
                 "${workspaceFolder}/include",
-                "${workspaceFolder}/**"
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/lib/CMSIS/CMSIS-DSP/Include",
+                "${workspaceFolder}/lib/CMSIS/CMSIS-DSP/PrivateInclude"
             ],
             "defines": [
                 "STM32F10X_MD",
-                "__ARM_ARCH_7M__"
+                "__ARM_ARCH_7M__",
+                "__GNUC__"
             ],
             "compilerPath": "arm-none-eabi-g++.exe",
             "cStandard": "c11",

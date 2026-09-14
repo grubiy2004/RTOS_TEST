@@ -9,6 +9,11 @@ SET(INCLUDES_LIB_CMSIS
     CMSIS/Include
 )
 
+SET(INCLUDES_LIB_CMSIS_DSP
+    CMSIS/CMSIS-DSP/Include
+    CMSIS/CMSIS-DSP/PrivateInclude
+)
+
 SET(INCLUDES_LIB_FreeRTOS
     FreeRTOS/include
     FreeRTOS/portable
@@ -30,6 +35,7 @@ add_library(lib INTERFACE)
 
 target_include_directories(lib INTERFACE
     ${INCLUDES_LIB_CMSIS}
+    ${INCLUDES_LIB_CMSIS_DSP}
     ${INCLUDES_LIB_FreeRTOS}
 )
 
