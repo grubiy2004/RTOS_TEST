@@ -8,6 +8,7 @@
 #include "task.h"
 #include "stm32f10x.h"
 #include "usart.h"
+#include "arm_math.h"
 
 #define BIT_BAND(address,offset,bit) *((volatile uint32_t *) (((address) & 0xF0000000) + 0x02000000 + (((address) & 0x000FFFFF) + offset)*32 + bit*4))
 
@@ -20,14 +21,9 @@ static void vLED_Task(void *pvParameters) {
 
     for (;;) {
         // Включить светодиод (низкий уровень на PC13)
-        //GPIOC->BRR = GPIO_BRR_BR13;
         BIT_BAND(GPIOC_BASE,0x0C,13) = 0;
         // Задержка 500 мс (используем системный тик FreeRTOS)
         vTaskDelay(pdMS_TO_TICKS(1000));
-        // for(int i=0;i<10000000;i++) {
-        //     __ASM volatile("nop");
-        // }
-
         // Выключить светодиод (высокий уровень на PC13)
         BIT_BAND(GPIOC_BASE,0x0C,13) = 1;
 
