@@ -12,6 +12,8 @@
 
 #define BIT_BAND(address,offset,bit) *((volatile uint32_t *) (((address) & 0xF0000000) + 0x02000000 + (((address) & 0x000FFFFF) + offset)*32 + bit*4))
 
+uint16_t * buffer_adc;
+
 /**
  * @brief   Задача мигания светодиодом
  * @param   pvParameters  Не используется
@@ -51,6 +53,7 @@ void vApplicationIdleHook(void) {
 static void System_Init(void) {
     RCC->APB2ENR |= RCC_APB2ENR_IOPAEN | RCC_APB2ENR_IOPBEN | RCC_APB2ENR_IOPCEN | RCC_APB2ENR_USART1EN;
     RCC->APB2ENR |= RCC_APB2ENR_TIM1EN;
+    RCC->AHBENR |= RCC_AHBENR_DMA1EN;
 
     GPIOA->CRH &= ~(GPIO_CRH_CNF9 | GPIO_CRH_MODE9);
     GPIOA->CRH |= GPIO_CRH_CNF10_1 | GPIO_CRH_MODE13_1; // AF-output, 2 MHz (альт. выход для USART1 TX)
@@ -77,6 +80,44 @@ static void System_Init(void) {
     IWDG->PR = 2;
     IWDG->KR = 0xAAAA;
     IWDG->KR = 0xCCCC;
+
+    ADC1->CR2 |= ADC_CR2_EXTTRIG | ADC_CR2_DMA;
+    ADC1->CR2 &= ~ADC_CR2_EXTSEL;
+    ADC1->CR2 |= ADC_CR2_EXTSEL_2;  //Timer 3 TRGO event
+    ADC1->SMPR2 &= ~ADC_SMPR2_SMP2;    //PA2 ADC12_IN2/
+    ADC1->SMPR2 |= ADC_SMPR2_SMP2_1;    // 13.5 cycles
+    ADC1->SQR1 &= ~ADC_SQR1_L;  // 1 conversation
+    ADC1->SQR3 |= 2; //1st conversion in regular sequence is channel 2
+
+    DMA1_Channel1->CCR &= ~DMA_CCR1_MSIZE;
+    DMA1_Channel1->CCR |= DMA_CCR1_MSIZE_0; //16 bits
+    DMA1_Channel1->CCR &= ~DMA_CCR1_PSIZE;
+    DMA1_Channel1->CCR |= DMA_CCR1_PSIZE_0; //16 bits
+    DMA1_Channel1->CCR |= DMA_CCR1_MINC | DMA_CCR1_CIRC | DMA_CCR1_HTIE | DMA_CCR1_TCIE ;
+    DMA1_Channel1->CNDTR = 512;
+    DMA1_Channel1->CPAR = ADC1->DR;
+    DMA1_Channel1->CMAR = buffer_adc;
+    DMA1_Channel1->CCR |= DMA_CCR1_EN;
+
+    ADC1->CR2 |= ADC_CR2_CAL;
+    while(!(ADC1->CR2 & ADC_CR2_CAL)) {}
+    GPIOC->BSRR |= GPIO_BRR_BR13;
+    ADC1->CR2 |= ADC_CR2_ADON;
+}
+
+void DMA1_Channel1_IRQHandler(void) {
+    if (DMA1->ISR & DMA_ISR_HTIF1) {
+
+        DMA1->IFCR &= ~DMA_IFCR_CHTIF1;
+    }
+    else if (DMA1->ISR & DMA_ISR_TCIF1) {
+
+        DMA1->IFCR &= ~DMA_IFCR_CTCIF1;
+    }
+    else if (DMA1->ISR & DMA_ISR_TEIF1) {
+
+        DMA1->IFCR &= ~DMA_IFCR_CTEIF1;
+    }
 }
 
 /**
