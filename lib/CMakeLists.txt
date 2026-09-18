@@ -31,6 +31,25 @@ SET(SOURCES_LIB_FreeRTOS
     FreeRTOS/portable/port.c
 )
 
+set(SOURCES_LIB_CMSIS_DSP
+    # TransformFunctions
+    CMSIS/CMSIS-DSP/Source/TransformFunctions/arm_rfft_q15.c
+    CMSIS/CMSIS-DSP/Source/TransformFunctions/arm_rfft_init_q15.c
+    CMSIS/CMSIS-DSP/Source/TransformFunctions/arm_cfft_q15.c
+    CMSIS/CMSIS-DSP/Source/TransformFunctions/arm_cfft_init_q15.c
+    CMSIS/CMSIS-DSP/Source/TransformFunctions/arm_cfft_radix4_q15.c
+    CMSIS/CMSIS-DSP/Source/TransformFunctions/arm_cfft_radix4_init_q15.c
+    CMSIS/CMSIS-DSP/Source/TransformFunctions/arm_bitreversal.c
+    CMSIS/CMSIS-DSP/Source/TransformFunctions/arm_bitreversal2.c
+
+    # CommonTables
+    CMSIS/CMSIS-DSP/Source/CommonTables/arm_common_tables.c
+    CMSIS/CMSIS-DSP/Source/CommonTables/arm_const_structs.c
+
+    # BasicMathFunctions
+    CMSIS/CMSIS-DSP/Source/BasicMathFunctions/arm_shift_q15.c
+)
+
 add_library(lib INTERFACE)
 
 target_include_directories(lib INTERFACE
@@ -41,4 +60,5 @@ target_include_directories(lib INTERFACE
 
 target_sources(lib INTERFACE
     ${SOURCES_LIB_FreeRTOS}
+    ${SOURCES_LIB_CMSIS_DSP}
 )

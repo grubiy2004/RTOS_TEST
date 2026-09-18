@@ -29,13 +29,13 @@
 #define configUSE_TRACE_FACILITY                1
 #define configUSE_STATS_FORMATTING_FUNCTIONS	1
 #define configUSE_16_BIT_TICKS                  0
-#define configIDLE_SHOULD_YIELD                 1
-#define configUSE_MUTEXES                       1
-#define configUSE_RECURSIVE_MUTEXES             1
-#define configUSE_COUNTING_SEMAPHORES           1
+#define configIDLE_SHOULD_YIELD                 0
+#define configUSE_MUTEXES                       0
+#define configUSE_RECURSIVE_MUTEXES             0
+#define configUSE_COUNTING_SEMAPHORES           0
 #define configUSE_QUEUE_SETS                    0
 #define configUSE_TASK_NOTIFICATIONS            1
-
+#define configCHECK_FOR_STACK_OVERFLOW          1
 /*-----------------------------------------------------------
  * Interrupt priority configuration (Cortex-M3)
  *----------------------------------------------------------*/
