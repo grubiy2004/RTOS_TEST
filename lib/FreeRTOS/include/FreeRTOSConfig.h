@@ -23,8 +23,8 @@
 #define configCPU_CLOCK_HZ                      ( 72000000UL )
 #define configTICK_RATE_HZ                      ( 1000UL )
 #define configMAX_PRIORITIES                    ( 5 )
-#define configMINIMAL_STACK_SIZE                ( ( unsigned short ) 128 )
-#define configTOTAL_HEAP_SIZE                   ( ( size_t ) ( 10 * 1024 ) )
+#define configMINIMAL_STACK_SIZE                ( ( unsigned short ) 512 )
+#define configTOTAL_HEAP_SIZE                   ( ( size_t ) ( 9 * 1024 ) )
 #define configMAX_TASK_NAME_LEN                 ( 16 )
 #define configUSE_TRACE_FACILITY                1
 #define configUSE_STATS_FORMATTING_FUNCTIONS	1
@@ -36,6 +36,7 @@
 #define configUSE_QUEUE_SETS                    0
 #define configUSE_TASK_NOTIFICATIONS            1
 #define configCHECK_FOR_STACK_OVERFLOW          1
+#define configRECORD_STACK_HIGH_ADDRESS         1
 /*-----------------------------------------------------------
  * Interrupt priority configuration (Cortex-M3)
  *----------------------------------------------------------*/
@@ -56,9 +57,12 @@
  * Run time statistics - DISABLED
  *----------------------------------------------------------*/
 
-#define configGENERATE_RUN_TIME_STATS           0
-#define portCONFIGURE_TIMER_FOR_RUN_TIME_STATS()
-#define portGET_RUN_TIME_COUNTER_VALUE()        0
+extern void vConfigureTimerForRunTimeStats(void);
+extern uint16_t ulGetRunTimeCounterValue(void);
+
+#define configGENERATE_RUN_TIME_STATS               1
+#define portCONFIGURE_TIMER_FOR_RUN_TIME_STATS()    vConfigureTimerForRunTimeStats()
+#define portGET_RUN_TIME_COUNTER_VALUE()            ulGetRunTimeCounterValue()
 
 /*-----------------------------------------------------------
  * Timer (Software Timer) configuration
@@ -96,7 +100,7 @@
 #define INCLUDE_vTaskDelay                      1
 #define INCLUDE_xTaskGetSchedulerState          1
 #define INCLUDE_xTaskGetCurrentTaskHandle       1
-#define INCLUDE_uxTaskGetStackHighWaterMark     0
+#define INCLUDE_uxTaskGetStackHighWaterMark     1
 #define INCLUDE_xTaskGetIdleTaskHandle          0
 #define INCLUDE_eTaskGetState                   0
 #define INCLUDE_xTimerPendFunctionCall          0

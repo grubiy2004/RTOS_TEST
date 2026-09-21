@@ -54,6 +54,7 @@ set(SOURCES_ASM
 )
 set(SOURCES_C
     ${PROJECT_SOURCE_DIR}/mcal/source/usart.c
+    ${PROJECT_SOURCE_DIR}/mcal/source/i2c.c
     ${PROJECT_SOURCE_DIR}/source/at24c02.c
     ${PROJECT_SOURCE_DIR}/source/bmp180.c
     ${PROJECT_SOURCE_DIR}/source/rtos.c

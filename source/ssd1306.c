@@ -62,7 +62,7 @@ void SSD1306_Init(void) {
 	I2C_Write(SSD1306_CMD_SEG_REMAP_1);
 
 	I2C_Write(0x00);
-	I2C_Write(SSD1306_CMD_COM_SCAN_DEC);
+	I2C_Write(SSD1306_CMD_COM_SCAN_INC);
 
 	I2C_Write(0x00);
 	I2C_Write(SSD1306_CMD_SET_COM_PINS);
@@ -85,7 +85,7 @@ void SSD1306_Init(void) {
 
 	I2C_Write(0x00);
 	I2C_Write(SSD1306_CMD_SET_MEM_MODE);
-	I2C_Write(0x00);
+	I2C_Write(0x01);
 
 	SSD1306_Clear();
 
@@ -122,7 +122,7 @@ void SSD1306_Clear(void) {
 /** @brief Full display updating from buffer
  * @param buffer Array of pixels
 */
-void SSD1306_UpdateFull(uint8_t *buffer) {
+void SSD1306_UpdateFull(const uint8_t *buffer) {
     // Копируем во внутренний буфер
     for(uint16_t i = 0; i < sizeof(ssd1306_buffer); i++) {
         ssd1306_buffer[i] = buffer[i];

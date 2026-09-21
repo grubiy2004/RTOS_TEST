@@ -9,13 +9,17 @@
             "cwd": "${workspaceFolder}",
             "executable": "${workspaceFolder}/build/Debug/rtos_test.elf",
             "interface": "swd",
-            "runToEntryPoint": "main",
+            //"runToEntryPoint": "main",
             "servertype": "openocd",
             "configFiles": [
                 "interface/stlink.cfg",
                 "target/stm32f1x.cfg"
             ],
-            "svdFile": "${workspaceFolder}/mcal/svd/STM32F103xx.svd"
+            "svdFile": "${workspaceFolder}/mcal/svd/STM32F103xx.svd",
+            "liveWatch": {
+                "enabled": true,
+                "samplesPerSecond": 20
+            }
         }
     ]
 }

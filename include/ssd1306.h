@@ -42,7 +42,7 @@ void SSD1306_SendCommand(uint8_t cmd);
 void SSD1306_SendData(uint8_t data);
 void SSD1306_SetCursor(uint8_t page, uint8_t col);
 void SSD1306_Clear(void);
-void SSD1306_UpdateFull(uint8_t *buffer);
+void SSD1306_UpdateFull(const uint8_t *buffer);
 void SSD1306_SetContrast(uint8_t value);
 void SSD1306_DisplayOn(void);
 void SSD1306_DisplayOff(void);

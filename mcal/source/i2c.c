@@ -1,5 +1,6 @@
 #include "stm32f10x.h"
 #include "i2c.h"
+#include "delay.h"
 
 // Программный сброс I2C
 void I2C_Reset(void) {

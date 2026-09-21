@@ -42,6 +42,12 @@ set(SOURCES_LIB_CMSIS_DSP
     CMSIS/CMSIS-DSP/Source/TransformFunctions/arm_bitreversal.c
     CMSIS/CMSIS-DSP/Source/TransformFunctions/arm_bitreversal2.c
 
+    # Complex Math Functions
+    CMSIS/CMSIS-DSP/Source/ComplexMathFunctions/arm_cmplx_mag_squared_q15.c
+
+    # Statistics Functions
+    CMSIS/CMSIS-DSP/Source/StatisticsFunctions/arm_max_q15.c
+
     # CommonTables
     CMSIS/CMSIS-DSP/Source/CommonTables/arm_common_tables.c
     CMSIS/CMSIS-DSP/Source/CommonTables/arm_const_structs.c
