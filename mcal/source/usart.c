@@ -7,6 +7,8 @@
 void USART_Init(void) {
     USART1->BRR = 7500;
     USART1->CR1 |= USART_CR1_UE | USART_CR1_TE | USART_CR1_RE;
+    USART1->CR2 = 0;
+	USART1->CR3 |= USART_CR3_DMAT;
 }
 
 // Передача по UART посимвольно
