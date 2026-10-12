@@ -170,6 +170,9 @@ uint8_t FRAME_BITMAP[1024] = {
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 }; /**< frame wth all digits in graphical view on OLED SSD1306. "0" - [0:96], "1" - [96:192] et cetera (12*8 pixels per digit)*/
 
+static const uint8_t sync[] = {0xA5, 0xA5, 0xA5, 0xA5};
+volatile uint8_t trans_sync = 0;
+
 #ifdef DEBUG
 static char StatsBuffer[1024] __attribute__((unused)); /**< Buffer for @ref vTaskGetRunTimeStats() */
 #endif
@@ -212,20 +215,24 @@ static void vUSART_Task(void *pvParameters) {
     (void) pvParameters;
     for(;;) {
         ulTaskNotifyTake(pdTRUE,portMAX_DELAY);
+
         #ifdef DEBUG
         Task_USART_Start();
         #endif
-        if (DMA1->ISR & DMA_ISR_TCIF4) {
+        if (!trans_sync) {
             DMA1_Channel4->CCR &= ~DMA_CCR4_EN;
-            DMA1_Channel4->CNDTR = BUF_ADC_SIZE;
+            DMA1_Channel4->CMAR = (uint32_t)sync;
+            DMA1_Channel4->CNDTR = sizeof(sync);
+            trans_sync = 1;
             DMA1_Channel4->CCR |= DMA_CCR4_EN;
         }
-        //USART_TX("z", USART_UNIT_1);
+
         #ifdef DEBUG
         Task_USART_Stop();
         #endif
     }
 }
+
 
 static void vFFT_Task(void *pvParameters) {
     (void) pvParameters;
@@ -277,7 +284,7 @@ static void OLED_Display(void *pvParameters) {
         #ifdef DEBUG
         Task_OLED_Stop();
         #endif
-        vTaskDelay(pdMS_TO_TICKS(1000));
+        //vTaskDelay(pdMS_TO_TICKS(1000));
     }
 }
 
@@ -325,7 +332,7 @@ void DMA1_Channel1_IRQHandler(void) {
     else if (DMA1->ISR & DMA_ISR_TCIF1) {
         DMA1_Channel2->CCR &= ~(DMA_CCR2_EN);
         DMA1_Channel2->CNDTR = BUF_ADC_SIZE/2;
-        DMA1_Channel2->CPAR = (uint32_t) buf_adc[256];
+        DMA1_Channel2->CPAR = (uint32_t)&buf_adc[256];
         DMA1_Channel2->CMAR = (uint32_t)&sec_buf_adc[256];
         DMA1_Channel2->CCR |= DMA_CCR2_EN | DMA_CCR2_TCIE;
         DMA1->IFCR |= DMA_IFCR_CTCIF1;
@@ -348,7 +355,17 @@ void DMA1_Channel2_IRQHandler(void) {
 void DMA1_Channel4_IRQHandler(void) {
     DMA1->IFCR |= DMA_IFCR_CTCIF4;
     DMA1->IFCR |= DMA_IFCR_CHTIF4;
-    USART1->SR &= ~USART_SR_TC;
+    if (trans_sync == 1) {
+        DMA1_Channel4->CCR &= ~DMA_CCR4_EN;
+        DMA1_Channel4->CMAR = (uint32_t)magn_half_buf_fft;
+        DMA1_Channel4->CNDTR = BUF_ADC_SIZE; // (q15)magn_half_buf_fft -> 256 * 2 words
+        DMA1_Channel4->CCR |= DMA_CCR4_EN;
+        trans_sync = 2;
+    }
+    else if (trans_sync == 2) {
+        trans_sync = 0;
+    }
+
 }
 
 static void System_Init(void) {
@@ -435,11 +452,12 @@ static void System_Init(void) {
     DMA1_Channel2->CCR |= DMA_CCR2_PSIZE_0; //16 bits
     DMA1_Channel2->CCR |= DMA_CCR2_MINC | DMA_CCR2_PINC | DMA_CCR2_MEM2MEM;
 
+    // DMA1_Ch4 for UART1_TX line
     DMA1_Channel4->CCR &= ~DMA_CCR4_MSIZE; // 8 bit
     DMA1_Channel4->CCR &= ~DMA_CCR4_PSIZE; // 8 bit
     DMA1_Channel4->CCR |= DMA_CCR4_MINC | DMA_CCR4_DIR | DMA_CCR4_TCIE;
     DMA1_Channel4->CPAR = (uint32_t)&USART1->DR;
-    DMA1_Channel4->CMAR = (uint32_t)magn_half_buf_fft;
+    //DMA1_Channel4->CMAR = (uint32_t)magn_half_buf_fft;
 
     NVIC_EnableIRQ(DMA1_Channel1_IRQn);
     NVIC_EnableIRQ(DMA1_Channel2_IRQn);

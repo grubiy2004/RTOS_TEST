@@ -5,8 +5,8 @@
  *  @note Only for USART1 and 9600 baudrate, for other configurations to change function
  */
 void USART_Init(void) {
-    USART1->BRR = 7500;
-    USART1->CR1 |= USART_CR1_UE | USART_CR1_TE | USART_CR1_RE;
+    USART1->BRR = 625;  // 115200 baud
+    USART1->CR1 |= USART_CR1_UE | USART_CR1_TE;
     USART1->CR2 = 0;
 	USART1->CR3 |= USART_CR3_DMAT;
 }
