@@ -36,7 +36,7 @@ q15_t buf_fft[BUF_ADC_SIZE*2];      /** Buffer with fft samples of @ref buf_adc 
 q15_t magn_half_buf_fft[BUF_ADC_SIZE/2];    /** |buf_fft| (magnitude spectrum of signal @ref buf_adc) */
 uint32_t ind_max_magn;      /** returning arg of @ref arm_max_q15: what bin in @ref magn_half_buf_fft has biggest value */
 q15_t dummy;                /** dummy returning arg of @ref arm_max_q15 */
-uint32_t bin_freq;          /** frequency with biggest magnitude */
+float bin_freq;          /** frequency bin */
 
 /**  */
 uint8_t FRAME_BITMAP[1024] = {
@@ -171,7 +171,7 @@ uint8_t FRAME_BITMAP[1024] = {
 }; /**< frame wth all digits in graphical view on OLED SSD1306. "0" - [0:96], "1" - [96:192] et cetera (12*8 pixels per digit)*/
 
 static const uint8_t sync[] = {0xA5, 0xA5, 0xA5, 0xA5};
-volatile uint8_t trans_sync = 0;
+volatile uint8_t trans_sync = 0;    /** 3-state variable: 0, 1, 2. Used in @ref vUSART_Task and DMA1_Channe4_IRQHandler */
 
 #ifdef DEBUG
 static char StatsBuffer[1024] __attribute__((unused)); /**< Buffer for @ref vTaskGetRunTimeStats() */
@@ -211,19 +211,25 @@ static void vLED_Task(void *pvParameters) {
     }
 }
 
+/** @brief Transfer of the magnitude spectre on PC.
+ * Non-blocking because DMA is used. Data packet is @ref sync + @ref magn_half_buf_fft (A5A5A5A5+data[256]). A5A5A5A5 for synchronization.
+ *  @param pvParameters unused
+ */
 static void vUSART_Task(void *pvParameters) {
     (void) pvParameters;
     for(;;) {
-        ulTaskNotifyTake(pdTRUE,portMAX_DELAY);
+        ulTaskNotifyTake(pdTRUE,portMAX_DELAY); // Wait Notify from @ref vFFT_Task
 
         #ifdef DEBUG
         Task_USART_Start();
         #endif
-        if (!trans_sync) {
+
+        if (!trans_sync) {  /** @ref trans_sync = 0 :  sync and data are transfered or not transfered (for first iterations)
+                                Enable DMA and transmit sync-data*/
             DMA1_Channel4->CCR &= ~DMA_CCR4_EN;
             DMA1_Channel4->CMAR = (uint32_t)sync;
             DMA1_Channel4->CNDTR = sizeof(sync);
-            trans_sync = 1;
+            trans_sync = 1; /** sync-data is transmiting. IRQ will occure only by the end of transmitting sync-data */
             DMA1_Channel4->CCR |= DMA_CCR4_EN;
         }
 
@@ -233,7 +239,10 @@ static void vUSART_Task(void *pvParameters) {
     }
 }
 
-
+/** @brief Fast Fourier Transform of input signal
+ * return @ref freq in @ref xTaskNotify: frequency of a peak in spectre, which will show on LCD
+ * @param pvParameters unused
+ */
 static void vFFT_Task(void *pvParameters) {
     (void) pvParameters;
     uint32_t freq;
@@ -248,7 +257,7 @@ static void vFFT_Task(void *pvParameters) {
         arm_rfft_q15(&S, (q15_t *)sec_buf_adc, buf_fft);
         arm_cmplx_mag_squared_q15(buf_fft,magn_half_buf_fft, BUF_ADC_SIZE/2);
         arm_max_q15(magn_half_buf_fft, BUF_ADC_SIZE/2, &dummy, &ind_max_magn);
-        freq = ind_max_magn * bin_freq;
+        freq = (uint32_t) ((float)ind_max_magn * bin_freq);
         xTaskNotifyGive(usart_task);
         xTaskNotify(oled_task, freq, eSetValueWithoutOverwrite);
         #ifdef DEBUG
@@ -263,28 +272,34 @@ static void OLED_Display(void *pvParameters) {
     uint32_t freq_from_fft_task;
     uint8_t digits[4];
     uint8_t NEW_FRAME_BITMAP[1024];
-    uint8_t * p_to_NFB;
+    uint8_t * p_to_NFB; /** Point to NEW_FRAME_BITMAP */
     memset(NEW_FRAME_BITMAP,0,sizeof(NEW_FRAME_BITMAP));
 
     for(;;) {
         xTaskNotifyWait(0,0xFFFFFFFF,&freq_from_fft_task,portMAX_DELAY);
+
         #ifdef DEBUG
         Task_OLED_Start();
         #endif
-        for (int i = 3; i >= 0; i--) {
+
+        for (int i = 3; i >= 0; i--) {  /** Вычленяем цифры из переменной @ref freq_from_fft_task, которая получена из vFFT_Task через нотификатор*/
             digits[i] = freq_from_fft_task % 10;
             freq_from_fft_task /= 10;
         }
-        p_to_NFB = NEW_FRAME_BITMAP + 26*8;
+
+        p_to_NFB = NEW_FRAME_BITMAP + 26*8; /** 26*8 - отступ от края дисплея, рассчитано так, чтобы число распологалось по середине
+                                                12*8 - размер одной цифры на дисплее,
+                                                8*8 - отступ между цифрами*/
         for(int i = 0; i<=3; i++) {
-            memcpy(p_to_NFB,FRAME_BITMAP+digits[i]*12*8,12*8);
+            memcpy(p_to_NFB,FRAME_BITMAP+digits[i]*12*8,12*8); /** из @ref FRAME_BITMAP выбираем нужную цифру и копируем в буфер NEW_FRAME_BITMAP через p_to_NFB */
             p_to_NFB += 12*8 + 8*8;
         }
+
         SSD1306_UpdateFull(NEW_FRAME_BITMAP);
+
         #ifdef DEBUG
         Task_OLED_Stop();
         #endif
-        //vTaskDelay(pdMS_TO_TICKS(1000));
     }
 }
 
@@ -320,6 +335,11 @@ uint16_t ulGetRunTimeCounterValue(void) {
     return TIM4->CNT;
 }
 
+/** @brief Обработчик прерывания для DMA ADC
+ * Когда записано половина буфера (256 элементов), то начинается запись в дублирующий буфер @ref sec_buf_adc значений [0:256]
+ * Когда записан весь буфер (512 элементов), то начинается запись в дублирующий буфер @ref sec_buf_adc значений [255:512]
+ * Для этого в обработчике проверяется флаг прерываний: половина передалась или все; исходя из этого задаются различные настройки для Ch2 - начальные адреса буферов (регистры CPAR, CMAR)
+ */
 void DMA1_Channel1_IRQHandler(void) {
     if (DMA1->ISR & DMA_ISR_HTIF1) {
         DMA1_Channel2->CCR &= ~(DMA_CCR2_EN);
@@ -343,6 +363,9 @@ void DMA1_Channel1_IRQHandler(void) {
     }
 }
 
+/** @brief Обработчик прервыания для DMA mem2mem (двойная буферизация)
+ * Дает нотификатор для @ref vFFT_Task() и вызывает его
+ */
 void DMA1_Channel2_IRQHandler(void) {
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
     DMA1->IFCR |= DMA_IFCR_CTCIF2;
@@ -352,20 +375,20 @@ void DMA1_Channel2_IRQHandler(void) {
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
 
+/** @brief Обработчик прервыания для DMA UART1 */
 void DMA1_Channel4_IRQHandler(void) {
     DMA1->IFCR |= DMA_IFCR_CTCIF4;
     DMA1->IFCR |= DMA_IFCR_CHTIF4;
-    if (trans_sync == 1) {
+    if (trans_sync == 1) {  /** sync-data were transmitted. And now main data will transmit */
         DMA1_Channel4->CCR &= ~DMA_CCR4_EN;
         DMA1_Channel4->CMAR = (uint32_t)magn_half_buf_fft;
         DMA1_Channel4->CNDTR = BUF_ADC_SIZE; // (q15)magn_half_buf_fft -> 256 * 2 words
         DMA1_Channel4->CCR |= DMA_CCR4_EN;
         trans_sync = 2;
     }
-    else if (trans_sync == 2) {
-        trans_sync = 0;
+    else if (trans_sync == 2) { /** main data were transmitted and sync data too. The end of transmitting of the one packet */
+        trans_sync = 0; /** Avoid beginnig of new data transmitting in @ref vUSART_Task() */
     }
-
 }
 
 static void System_Init(void) {
@@ -374,7 +397,7 @@ static void System_Init(void) {
     RCC->AHBENR |= RCC_AHBENR_DMA1EN;
 
     GPIOA->CRH &= ~(GPIO_CRH_CNF9 | GPIO_CRH_MODE9);
-    GPIOA->CRH |= GPIO_CRH_CNF9_1 | GPIO_CRH_MODE9_1; // AF-output, 2 MHz, p-p (альт. выход для USART1 TX) PA9
+    GPIOA->CRH |= GPIO_CRH_CNF9_1 | GPIO_CRH_MODE9_1; // AF-output, 2 MHz, push-pull (альт. выход для USART1 TX) PA9
     GPIOA->CRH &= ~(GPIO_CRH_CNF10 | GPIO_CRH_MODE10);
     GPIOA->CRH |= GPIO_CRH_CNF10_1; // input push-pull (вход для USART1 RX) PA10
     GPIOA->BSRR |= GPIO_BSRR_BS10; // подтягивающий резистор на входе PA10
@@ -386,10 +409,10 @@ static void System_Init(void) {
     GPIOB->CRL |= GPIO_CRL_CNF6 | GPIO_CRL_MODE6 | GPIO_CRL_CNF7 | GPIO_CRL_MODE7;   // I2C1_SCL(PB6); I2C1_SDA(PB7)
 
     GPIOB->CRH &= ~(GPIO_CRH_CNF13 | GPIO_CRH_MODE13);
-    GPIOB->CRH |= GPIO_CRH_CNF10_1 | GPIO_CRH_MODE13_1;  // // AF-output, 2 MHz (альт. выход (TIM3-CC1))
-    GPIOB->BSRR = GPIO_BSRR_BR13;    // Изначально светодиод выключен
+    GPIOB->CRH |= GPIO_CRH_CNF10_1 | GPIO_CRH_MODE13_1;  // // AF-output, 2 MHz (альт. выход для TIM3-CC1)
+    //GPIOB->BSRR = GPIO_BSRR_BR13;    // Изначально светодиод выключен
 
-    GPIOC->CRH &= ~(GPIO_CRH_CNF13 | GPIO_CRH_MODE13);// Настраиваем PC13 как выход (push-pull, 2 MHz)
+    GPIOC->CRH &= ~(GPIO_CRH_CNF13 | GPIO_CRH_MODE13);// Настраиваем PC13 как выход (push-pull, 2 MHz) для светодиода
     GPIOC->CRH |= GPIO_CRH_MODE13_0;  // MODE13 = 01 (2MHz, выход)
     GPIOC->BSRR = GPIO_BSRR_BS13;    // Изначально светодиод выключен
 
@@ -398,7 +421,7 @@ static void System_Init(void) {
     GPIOA->CRL |= GPIO_CRL_MODE3 | GPIO_CRL_MODE4 | GPIO_CRL_MODE5 | GPIO_CRL_MODE6 | GPIO_CRL_MODE7;
     #endif
 
-    // ШИМ
+    /** ШИМ (тестовый сигнал), сейчас меандр с частотой 820 Гц */
     TIM2->PSC = 8000 - 1;
     TIM2->ARR = 10;
     TIM2->CCMR1 &= ~TIM_CCMR1_OC1M;     // Очистили биты режима
@@ -407,7 +430,7 @@ static void System_Init(void) {
     TIM2->CCER |= TIM_CCER_CC1E;        // Включить выход
     TIM2->EGR |= TIM_EGR_UG;
 
-    // Таймер 3 для триггера АЦП
+    /** Таймер 3 для триггера АЦП (он определяет частоту дискретизации оцифровки, в данном случае 20 кГц) */
     TIM3->CR2 &= ~TIM_CR2_MMS;  //The update event is selected as trigger output (TRGO).
     TIM3->CR2 |= TIM_CR2_MMS_1;
     TIM3->ARR = 3599;      // Update event 20 kHz 3599
@@ -421,14 +444,14 @@ static void System_Init(void) {
     I2C1->CR1 |= I2C_CR1_PE;
     delay(100);
     SSD1306_Init();
-    memmove(FRAME_BITMAP, FRAME_BITMAP+2, 1022);
+    memmove(FRAME_BITMAP, FRAME_BITMAP+2, 1022);   // свдиг кадра с цифрами, чтобы они не упирались в верхушку дисплея а были на две ячейки ниже
     memset(FRAME_BITMAP+1022,0,2);
     // IWDG->KR = 0x5555;
     // IWDG->PR = 2;
     // IWDG->KR = 0xAAAA;
     // IWDG->KR = 0xCCCC;
 
-    ADC1->CR2 |= ADC_CR2_EXTTRIG | ADC_CR2_DMA;
+    ADC1->CR2 |= ADC_CR2_EXTTRIG | ADC_CR2_DMA; // семплирование по внешнему триггеру; формирование запроса в DMA1
     ADC1->CR2 &= ~ADC_CR2_EXTSEL;
     ADC1->CR2 |= ADC_CR2_EXTSEL_2;  //Timer 3 TRGO event
     ADC1->SMPR2 &= ~ADC_SMPR2_SMP2;    //PA2 ADC12_IN2/
@@ -436,6 +459,7 @@ static void System_Init(void) {
     ADC1->SQR1 &= ~ADC_SQR1_L;  // 1 conversation
     ADC1->SQR3 |= 2; //1st conversion in regular sequence is channel 2
 
+    /** для сохранения отсчета АЦП в памяти */
     DMA1_Channel1->CCR &= ~DMA_CCR1_MSIZE;
     DMA1_Channel1->CCR |= DMA_CCR1_MSIZE_0; //16 bits
     DMA1_Channel1->CCR &= ~DMA_CCR1_PSIZE;
@@ -446,6 +470,7 @@ static void System_Init(void) {
     DMA1_Channel1->CMAR = (uint32_t)buf_adc;
     DMA1_Channel1->CCR |= DMA_CCR1_EN;
 
+    /** для двойной буферизации (когда Ch1 записал половину кадра (256 семплов), то включается Ch2 и пересылает с одного бфера в другой половину семплов, потом также со второй половиной семплов). Полученный второй буффер используется м @ref vFFT_Task для расчета спектра */
     DMA1_Channel2->CCR &= ~DMA_CCR2_MSIZE;
     DMA1_Channel2->CCR |= DMA_CCR2_MSIZE_0; //16 bits
     DMA1_Channel2->CCR &= ~DMA_CCR2_PSIZE;
@@ -468,17 +493,17 @@ static void System_Init(void) {
     DBGMCU->CR |= DBGMCU_CR_DBG_TIM3_STOP;
     #endif
 
-    bin_freq = (72000000/((TIM3->ARR+1)*(TIM3->PSC+1)))/BUF_ADC_SIZE;
+    bin_freq = (72000000/(((float)TIM3->ARR+1)*((float)TIM3->PSC+1)))/BUF_ADC_SIZE;
 
-    arm_rfft_init_512_q15(&S,0,1);
+    arm_rfft_init_512_q15(&S,0,1);  /** начальные расчеты таблиц синусов и косинусов для дальнейших постоянных БПФ */
 
-    ADC1->CR2 |= ADC_CR2_ADON;
+    ADC1->CR2 |= ADC_CR2_ADON;  /** калибруем АЦП */
     delay(100);
     ADC1->CR2 |= ADC_CR2_CAL;
     while(ADC1->CR2 & ADC_CR2_CAL) {}
     __DMB();
     GPIOC->BSRR |= GPIO_BRR_BR13;
-    TIM2->CR1 |= TIM_CR1_CEN;
+    TIM2->CR1 |= TIM_CR1_CEN;   /** включаем оба таймера: тестовый ШИМ сигнал и таймер внешнего события для АЦП */
     TIM3->CR1 |= TIM_CR1_CEN;
 }
 

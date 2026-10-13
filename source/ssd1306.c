@@ -127,7 +127,7 @@ void SSD1306_UpdateFull(const uint8_t *buffer) {
     for(uint16_t i = 0; i < sizeof(ssd1306_buffer); i++) {
         ssd1306_buffer[i] = buffer[i];
     }
-    	I2C_Start();
+    I2C_Start();
 	I2C_Select(SSD1306_ADDR, 0); // Запись
 
 	I2C_Write(0x00);             // Control Byte: Co=0, D/C#=0 (Command)

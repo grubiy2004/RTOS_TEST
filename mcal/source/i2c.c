@@ -12,7 +12,7 @@ void I2C_Reset(void) {
 // Передача события Start I2C
 void I2C_Start(void) {
 	I2C1->CR1 |= I2C_CR1_START;
-	delay(100);
+	//delay(100);
   // Ждать окончания события START
 	while(!(I2C1->SR1 & I2C_SR1_SB)) {}
 }
@@ -29,9 +29,9 @@ void I2C_Select(uint8_t address, uint8_t readBit) {
   // Поместить адрес и бит чтения/записи в регистр DR (R или ~W)
   I2C1->DR = (address << 1) | (1 & readBit);
   // Ждать окончания передачи адреса
-	uint16_t timing = 10000;
+    uint32_t timeout = 5000000;
   while(!(I2C1->SR1 & I2C_SR1_ADDR)) {
-	if(!(timing--)) break;
+	if(!(timeout--)) break;
   }
   // Прочесть SR1 и SR2 для стирания бита ADDR
   uint8_t temp __attribute__((unused)) = I2C1->SR1 | I2C1->SR2;
@@ -40,11 +40,13 @@ void I2C_Select(uint8_t address, uint8_t readBit) {
 // Запись байта по I2C
 void I2C_Write(uint8_t data) {
   // Дождаться освобождения регистра данных
-  while(!(I2C1->SR1 & I2C_SR1_TXE)) {}
+  uint32_t timeout = 5000000;
+  while(!(I2C1->SR1 & I2C_SR1_TXE) && timeout--) {}
   // Загрузка байта в регистр DR
   I2C1->DR = data;
   // Дождаться окончания передачи
-  while(!(I2C1->SR1 & I2C_SR1_BTF)) {}
+  timeout = 5000000;
+  while(!(I2C1->SR1 & I2C_SR1_BTF) && timeout--) {}
 }
 
 // Прием байта по I2C (с ожиданием бита ACK и без него)
